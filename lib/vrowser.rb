@@ -268,7 +268,9 @@ class Vrowser
   end
 
   def self.load_file(path)
-    self.load_config YAML.load_file(path)
+    instance = self.load_config YAML.load_file(path)
+    yield(instance) if block_given?
+    instance
   end
 
   #### ==== instance methods
@@ -278,6 +280,7 @@ class Vrowser
     @gamename = options[:gamename] or raise ArgumentError("gamename")
     @protocol = options[:protocol] or raise ArgumentError("protocol")
     @maxping  = options[:maxping] ||= 130
+    yield(self) if block_given?
   end
 
   def fetch

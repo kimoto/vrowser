@@ -18,20 +18,18 @@ if options[:config_path].nil?
   exit(1)
 end
 
-vrowser = Vrowser.load_file options[:config_path] 
-
-sub_command = ARGV.shift
-case sub_command
-when "fetch"
-  vrowser.fetch
-when "update"
-  vrowser.update
-  vrowser.clear
-when "list"
-  puts vrowser.servers.map(&:name).join($/)
-when "json"
-  vrowser.active_servers.select(:name, :host, :ping, :num_players, :type, :map, :players).order(:host).map(&:values).to_json.display
-else
-  raise ArgumentError
+Vrowser.load_file(options[:config_path]) do |vrowser|
+  case sub_command = ARGV.shift
+  when "fetch"
+    vrowser.fetch
+  when "update"
+    vrowser.update
+    vrowser.clear
+  when "list"
+    puts vrowser.servers.map(&:name).join($/)
+  when "json"
+    vrowser.active_servers.select(:name, :host, :ping, :num_players, :type, :map, :players).order(:host).map(&:values).to_json.display
+  else
+    raise ArgumentError
+  end
 end
-
