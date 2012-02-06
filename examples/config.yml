@@ -1,0 +1,14 @@
+qstat:
+  master_server: "hl2master.steampowered.com:27011"
+  gametype: stm
+  gamename: left4dead2
+  maxping:  100
+  protocol: a2s
+plugins: 
+ - l4d2
+database:
+  adapter: sqlite
+  database: /tmp/server.db
+  pool: 5
+  timeout: 5000
+

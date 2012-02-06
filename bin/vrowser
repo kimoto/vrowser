@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+# Author: kimoto
+require 'vrowser'
+require 'optparse'
+
+options = {}
+parser = OptionParser.new{ |opts|
+  opts.banner = "Usage: #{File.basename($0)}"
+  opts.on("-f", "--config-file=PATH", "specify config file"){ |v|
+    options[:config_path] = v
+  }
+}
+parser.parse!
+
+if options[:config_path].nil?
+  parser.help.display
+  exit(1)
+end
+
+vrowser = Vrowser.load_file options[:config_path] 
+
+sub_command = ARGV.shift
+case sub_command
+when "fetch"
+  vrowser.fetch
+when "update"
+  vrowser.update
+  vrowser.clear
+when "list"
+  puts vrowser.servers.map(&:name).join($/)
+when "json"
+  vrowser.active_servers.select(:name, :host, :ping, :num_players, :type, :map, :players).order(:host).map(&:values).to_json.display
+else
+  raise ArgumentError
+end
+
