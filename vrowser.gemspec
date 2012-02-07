@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vrowser}
-  s.version = "0.0.6"
+  s.version = "0.0.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["kimoto"]
@@ -30,10 +30,10 @@ Gem::Specification.new do |s|
      "lib/plugins/l4d2.rb",
      "lib/vrowser/http_daemon.rb",
      "lib/vrowser.rb",
-     "public_html/",
      "test/helper.rb",
-     "test/test_vrowser.rb"
-  ]
+     "test/test_vrowser.rb",
+"./public_html", "./public_html/css", "./public_html/css/demo_page.css", "./public_html/css/demo_table.css", "./public_html/css/demo_table_jui.css", "./public_html/css/demo_validation.css", "./public_html/css/main.css", "./public_html/css/site_jui.ccss.css", "./public_html/index.html", "./public_html/js", "./public_html/js/jquery-ui-1.8.16.custom.min.js", "./public_html/js/jquery.dataTables.columnFilter.js", "./public_html/js/jquery.dataTables.js", "./public_html/js/jquery.dataTables.min.js", "./public_html/js/jquery.dataTables.nightly.min.js", "./public_html/js/jquery.min.js", "./public_html/js/jquery.tmpl.min.js", "./public_html/js/vrowser.js"]
+
   s.homepage = %q{http://github.com/kimoto/vrowser}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
@@ -63,3 +63,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<thoughtbot-shoulda>, [">= 0"])
   end
 end
+
