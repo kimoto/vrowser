@@ -42,6 +42,12 @@ Gem::Specification.new do |s|
      "test/test_vrowser.rb"
   ]
 
+  s.add_dependency 'ruby-qstat'
+  s.add_dependency 'sequel'
+  s.add_dependency 'retry-handler'
+  s.add_dependency 'i18n'
+  s.add_dependency 'sqlite3'
+
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
