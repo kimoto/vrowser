@@ -4,6 +4,7 @@
 require 'vrowser'
 require 'optparse'
 require 'vrowser/http_daemon'
+require 'fileutils'
 
 options = {}
 parser = OptionParser.new{ |opts|
@@ -18,6 +19,12 @@ parser = OptionParser.new{ |opts|
 
 }
 parser.parse!
+
+if ARGV.first == "sample"
+  p sample_config = File.expand_path(File.join(File.dirname(__FILE__), "../examples/config.yml"))
+  FileUtils.cp(sample_config, "./config.yml", :verbose => true)
+  exit(0)
+end
 
 if options[:config_path].nil?
   parser.help.display
