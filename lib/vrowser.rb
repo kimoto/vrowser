@@ -254,9 +254,9 @@ class Vrowser
   end
 
   def self.load_config(config)
-    raise ArgumentError.new("config['plugins']") unless config["plugins"]
     raise ArgumentError.new("config['qstat']") unless config["qstat"]
     raise ArgumentError.new("config['database']") unless config["database"]
+    config['plugins'] ||= []
 
     VrowserModel.connect(config["database"])
 
