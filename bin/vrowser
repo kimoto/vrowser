@@ -3,6 +3,7 @@
 # Author: kimoto
 require 'vrowser'
 require 'optparse'
+require 'vrowser/http_daemon'
 
 options = {}
 parser = OptionParser.new{ |opts|
@@ -10,6 +11,11 @@ parser = OptionParser.new{ |opts|
   opts.on("-f", "--config-file=PATH", "specify config file"){ |v|
     options[:config_path] = v
   }
+
+  opts.on("-h", "--host=HOST", "host"){ |v| options[:host] = v }
+  opts.on("-p", "--port=PORT", "port"){ |v| options[:port] = v }
+  opts.on("-r", "--document-root=PATH", "root"){ |v| options[:document_root] = v }
+
 }
 parser.parse!
 
@@ -29,7 +35,18 @@ Vrowser.load_file(options[:config_path]) do |vrowser|
     puts vrowser.servers.map(&:name).join($/)
   when "json"
     vrowser.active_servers.select(:name, :host, :ping, :num_players, :type, :map, :players).order(:host).map(&:values).to_json.display
+  when "daemon"
+    unless options[:host] and options[:port] and options[:document_root]
+      raise ArgumentError
+    end
+
+    Vrowser::HTTPDaemon.start(
+      :Host => options[:host],
+      :Port => options[:port],
+      :DocumentRoot => options[:document_root],
+      :config_path => options[:config_path])
   else
-    raise ArgumentError
+    raise ArgumentError(sub_command)
   end
 end
+
