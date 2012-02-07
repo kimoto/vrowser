@@ -1,5 +1,5 @@
 = vrowser
-erver browser for many games (left4Dead2, TeamFortress2, etc)
+server browser for many games (left4Dead2, TeamFortress2, etc)
 
 = Setup & Install
 Install QStat(version 2.12+)
