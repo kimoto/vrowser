@@ -1,7 +1,31 @@
 = vrowser
-Server browser for many games (left4Dead2, TeamFortress2, etc)
+erver browser for many games (left4Dead2, TeamFortress2, etc)
+
+= Setup & Install
+Install QStat
+QStat Real-time game server stats - http://qstat.sourceforge.net/
+  ./configure 
+  make
+  make install
+
+Install Gems
+  gem install vrowser
+
+= Usage
+Generate sample config file
+  $ vrowser sample
+  $ ls
+  config.yml
+
+Fetch server list
+  $ vrowser -f ./config.yml fetch
+
+Update already registered servers
+  $ vrowser -f ./config.yml update
+
+Boot WEB Daemon (default is http://localhost:3000/)
+  $ vrowser -f ./config.yml daemon
 
 == Copyright
 Copyright (c) 2012 kimoto. See LICENSE.txt for
 further details.
-
