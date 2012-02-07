@@ -6,7 +6,11 @@ require 'optparse'
 require 'vrowser/http_daemon'
 require 'fileutils'
 
-options = {}
+options = {
+  :host => 'localhost',
+  :port => '3000',
+  :document_root => File.expand_path(File.join(File.dirname(__FILE__), '../public_html'))
+}
 parser = OptionParser.new{ |opts|
   opts.banner = "Usage: #{File.basename($0)}"
   opts.on("-f", "--config-file=PATH", "specify config file"){ |v|
@@ -21,7 +25,7 @@ parser = OptionParser.new{ |opts|
 parser.parse!
 
 if ARGV.first == "sample"
-  p sample_config = File.expand_path(File.join(File.dirname(__FILE__), "../examples/config.yml"))
+  sample_config = File.expand_path(File.join(File.dirname(__FILE__), "../examples/config.yml"))
   FileUtils.cp(sample_config, "./config.yml", :verbose => true)
   exit(0)
 end
