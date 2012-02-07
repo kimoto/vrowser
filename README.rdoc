@@ -2,8 +2,9 @@
 server browser for many games (left4Dead2, TeamFortress2, etc)
 
 = Setup & Install
-Install QStat(version 2.12+)
-QStat Real-time game server stats - http://qstat.sourceforge.net/
+You need to install QStat version 2.12+.
+
+QStat is Real-time game server stats fetcher - http://qstat.sourceforge.net/
   svn co https://qstat.svn.sourceforge.net/svnroot/qstat qstat 
   cd qstat
   ./autogen.sh
@@ -32,3 +33,4 @@ Boot WEB Daemon (default is http://localhost:3000/)
 == Copyright
 Copyright (c) 2012 kimoto. See LICENSE.txt for
 further details.
+
