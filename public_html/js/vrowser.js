@@ -1,7 +1,7 @@
 var server_browser = null;
 var get_new_data = null;
 $(document).ready(function(){
-  $.getJSON("/api/connected/json", function(data){
+  $.getJSON("./api/connected/json", function(data){
     $("#myTemplate").tmpl(data).appendTo("#servers");
 
     $("#servers tbody tr").live("dblclick", function(){
@@ -43,7 +43,7 @@ $(document).ready(function(){
     get_new_data = function(){
       $.ajax({
         'dataType': 'json',
-        'url': '/api/updated/json',
+        'url': './api/updated/json',
         'cache': true,
         'success': function(data){
           server_browser.fnClearTable(false);
