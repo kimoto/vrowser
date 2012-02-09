@@ -51,6 +51,12 @@ h1{
   padding: 0;margin: 0;
 }
 
+h1 > a{
+  font-size: 60%;
+  color: blue;
+  text-decoration: none;
+}
+
 h2{
   border: solid;
   border-color: gray;
