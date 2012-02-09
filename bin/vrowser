@@ -1,63 +1,133 @@
-#!/usr/bin/env ruby
+#!/bin/env ruby
 # encoding: utf-8
 # Author: kimoto
+require 'trollop'
+require 'pathname'
 require 'vrowser'
-require 'optparse'
 require 'vrowser/http_daemon'
 require 'fileutils'
 
-options = {
-  :host => 'localhost',
-  :port => '3000',
-  :document_root => File.expand_path(File.join(File.dirname(__FILE__), '../public_html'))
-}
-parser = OptionParser.new{ |opts|
-  opts.banner = "Usage: #{File.basename($0)}"
-  opts.on("-f", "--config-file=PATH", "specify config file"){ |v|
-    options[:config_path] = v
-  }
+class VrowserCLI
+  def self.run(argv)
+    self.new.parse(argv)
+  end
 
-  opts.on("-h", "--host=HOST", "host"){ |v| options[:host] = v }
-  opts.on("-p", "--port=PORT", "port"){ |v| options[:port] = v }
-  opts.on("-r", "--document-root=PATH", "root"){ |v| options[:document_root] = v }
+  # get subcommand names
+  def self.sub_commands
+    self.instance_methods.map(&:to_s).grep(/command_/).map{ |command_symbol| 
+      command_symbol.to_s.gsub(/^command_/, "")
+    }
+  end
 
-}
-parser.parse!
+  def initialize
+  end
 
-if ARGV.first == "sample"
-  sample_config = File.expand_path(File.join(File.dirname(__FILE__), "../examples/config.yml"))
-  FileUtils.cp(sample_config, "./config.yml", :verbose => true)
-  exit(0)
-end
+  def parse(argv)
+    @argv = argv
+    sub_commands = self.class.sub_commands
 
-if options[:config_path].nil?
-  parser.help.display
-  exit(1)
-end
-
-Vrowser.load_file(options[:config_path]) do |vrowser|
-  case sub_command = ARGV.shift
-  when "fetch"
-    vrowser.fetch
-  when "update"
-    vrowser.update
-    vrowser.clear
-  when "list"
-    puts vrowser.servers.map(&:name).join($/)
-  when "json"
-    vrowser.active_servers.select(:name, :host, :ping, :num_players, :type, :map, :players).order(:host).map(&:values).to_json.display
-  when "daemon"
-    unless options[:host] and options[:port] and options[:document_root]
-      raise ArgumentError
+    global_opts = Trollop::options do
+      banner <<-EOS
+Usage: #{File.basename($0)} [#{sub_commands.join(',')}]
+hoge
+      EOS
+      version File.read(Pathname.new(__FILE__).dirname.realpath + "../VERSION")
+      stop_on sub_commands
     end
 
-    Vrowser::HTTPDaemon.start(
-      :Host => options[:host],
-      :Port => options[:port],
-      :DocumentRoot => options[:document_root],
-      :config_path => options[:config_path])
-  else
-    raise ArgumentError(sub_command)
+    cmd = @argv.shift
+    cmd_opts = Trollop::options do
+      case cmd
+      when "sample"
+        opt :output_path, "output path", :short => "-o", :type => String, :default => "./config.yml"
+      when "list"
+        opt :config_file, "config file path", :short => "-f", :type => String, :required => true
+      when "fetch"
+        opt :config_file, "config file path", :short => "-f", :type => String, :required => true
+      when "update"
+        opt :config_file, "config file path", :short => "-f", :type => String, :required => true
+      when "json"
+        opt :config_file, "config file path", :short => "-f", :type => String, :required => true
+      when "server", "daemon"
+        opt :config_file, "config file path", :short => "-f", :type => String, :required => true
+        opt :port, "port number", :short => "-p", :type => String, :default => '3000'
+        opt :host, "host or ip address", :short => "-h", :type => String, :default => 'localhost'
+        opt :log_path, "log file path", :short => "-l", :default => STDERR
+        opt :document_root, "document root path", :short => "-d", :type => String,
+          :default => (Pathname.new(__FILE__).dirname.realpath + '../public_html').to_s
+      else
+        Trollop::die "unknown subcommand: #{cmd.inspect}"
+      end
+    end
+
+    if sub_commands.include? cmd
+      self.send("command_" +  cmd, cmd_opts)
+      return 0
+    else
+      cmd_opts.help.display
+    end
+  end
+
+  ### define sub commands
+  def command_list(options)
+    Vrowser.load_file(options[:config_file]) do |vrowser|
+      puts vrowser.active_servers.map(&:name).join($/)
+    end
+  end
+
+  def command_sample(options)
+    sample_config_path = (Pathname.new(__FILE__).dirname + "../examples/config.yml").realpath
+    output_path = options[:output_path]
+    if File.exist? output_path
+      STDERR.puts "Already file exists!: #{output_path}"
+    else
+      FileUtils.cp(sample_config_path, options[:output_path])
+      STDOUT.puts "Generated sample config file: #{output_path}"
+    end
+  end
+
+  def command_update(options)
+    Vrowser.load_file(options[:config_file]) do |vrowser|
+      vrowser.update
+      vrowser.clear
+    end
+  end
+
+  def command_json(options)
+    Vrowser.load_file(options[:config_file]) do |vrowser|
+      greped = vrowser.active_servers.select(:name, :host, :ping, :num_players, :type, :map, :players)
+      ordered = greped.order(:host)
+      ordered.map(&:values).to_json.display
+    end
+  end
+
+  def command_server(options)
+    execute_as_server(options.merge({:damonize => false}))
+  end
+
+  def command_daemon(options)
+    execute_as_server(options.merge({:daemonize => true}))
+  end
+
+  private 
+  def execute_as_server(options)
+    Vrowser::HTTPDaemon.new(
+      :config_path  => Pathname.new(options[:config_file]).realpath,
+      :BindAddress  => options[:host],
+      :Port         => options[:port],
+      :DocumentRoot => Pathname.new(options[:document_root]).realpath,
+      # :Logger       => logger 
+    ) do |vrowser|
+      if options[:daemonize]
+        vrowser.daemonize!
+        vrowser.start
+      else
+        vrowser.start
+      end
+    end
   end
 end
+
+Vrowser.logger = Logger.new(STDERR)
+exit VrowserCLI.run(ARGV)
 

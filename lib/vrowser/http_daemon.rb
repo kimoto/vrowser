@@ -36,6 +36,10 @@ class Vrowser::HTTPDaemon
     @server.start
   end
 
+  def daemonize!
+    Process.daemon
+  end
+
   def stop
     @server.shutdown if @server
     Thread.kill(@th) if @th
