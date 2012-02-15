@@ -6,11 +6,21 @@ require 'retry-handler'
 require 'active_support/core_ext'
 require 'yaml'
 require 'json'
+require 'time'
 
 module VrowserModel
   def self.connect(options={})
-    Sequel::Model.plugin(:schema)
-    Sequel.connect(options)
+    logger = options.delete(:logger)
+
+    Sequel::Model.plugin :schema
+    Sequel::Model.plugin :timestamps, :update_on_create => true
+    Sequel::Model.plugin :force_encoding, 'utf-8'
+    if logger
+      Sequel.connect(options, :loggers => [logger])
+    else
+      Sequel.connect(options)
+    end
+
     self.define_models
     Servers.plugin :timestamps, :create=>:created_at, :update=>:updated_at
   end
@@ -21,16 +31,16 @@ module VrowserModel
         unless table_exists?
           set_schema do
             primary_key :id
-            string :name
-            string :host, :unique => true
-            string :status
-            integer :ping
-            string :num_players
-            string :type
-            string :map
-            string :players
-            timestamp :created_at
-            timestamp :updated_at
+            String :name
+            String :host, :unique => true
+            String :status
+            Integer :ping
+            String :num_players
+            String :type
+            String :map
+            String :players
+            timestamp :created_at, :default => nil, :null => true
+            timestamp :updated_at, :default => nil, :null => true
           end
           create_table
         end
@@ -99,8 +109,8 @@ class Vrowser
         self.update(server.host, protocol)
         updated += 1
       }
-    rescue
-      @@logger.error $!
+    #rescue => ex
+    #  @@logger.error "#{ex.inspect}"
     ensure
       @@logger.info "updated #{updated} servers"
     end
@@ -114,8 +124,8 @@ class Vrowser
         self.update_info(server.host, protocol)
         updated += 1
       }
-    rescue
-      @@logger.error $!
+    rescue => ex
+      @@logger.error "#{ex.inspect}"
     ensure
       @@logger.info "updated #{updated} servers"
     end
@@ -210,7 +220,7 @@ class Vrowser
       return QStat.query_serverlist(host, gametype, gamename, maxping)
     }.retry(:accept_exception => StandardError, :logger => @@logger)
   rescue => ex
-    @@logger.error "error: #{ex}"
+    @@logger.error "#{ex.inspect}"
     return []
   end
 

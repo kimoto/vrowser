@@ -59,12 +59,16 @@ hoge
         Trollop::die "unknown subcommand: #{cmd.inspect}"
       end
     end
+    return execute_sub_commands(cmd, cmd_opts)
+  end
 
-    if sub_commands.include? cmd
+  def execute_sub_commands(cmd, cmd_opts)
+    if self.class.sub_commands.include? cmd
       self.send("command_" +  cmd, cmd_opts)
       return 0
     else
       cmd_opts.help.display
+      return 1
     end
   end
 
@@ -83,6 +87,13 @@ hoge
     else
       FileUtils.cp(sample_config_path, options[:output_path])
       STDOUT.puts "Generated sample config file: #{output_path}"
+    end
+  end
+
+  def command_fetch(options)
+    Vrowser.load_file(options[:config_file]) do |vrowser|
+      vrowser.fetch
+      vrowser.clear
     end
   end
 
