@@ -12,42 +12,44 @@
     <link rel="StyleSheet" href="./css/demo_table.css" />
     <link rel="StyleSheet" href="./css/demo_table_jui.css" />
     <title>Vrowser</title>
-   </head>
+  </head>
 
-   <body>
-     <section>
-     <h1 id="subject">Vrowser <a href="https://github.com/kimoto/vrowser/">(source)</a></h1>
-     <ul>
-       <li>サーバーの行でダブルクリックでログインできます</li>
-       <li>プレイヤー名で検索できます</li>
-     </ul>
+  <body>
+    <div class="container">
+      <section>
+        <h1 id="subject">Vrowser <a href="https://github.com/kimoto/vrowser/">(source)</a></h1>
+        <ul>
+          <li>サーバーの行でダブルクリックでログインできます</li>
+          <li>プレイヤー名で検索できます</li>
+        </ul>
 
-     <table id="servers" class="display">
-       <thead>
-         <tr>
-           <th>サーバー名</th>
-           <th>ホスト</th>
-           <th>Ping</th>
-           <th>人数</th>
-           <th>タイプ</th>
-           <th>マップ</th>
-           <th>プレイヤー</th>
-         </tr>
-       </thead>
-       <tbody>
-         <script id="myTemplate" type="text/x-jquery-tmpl">
-           <tr>
-             <td>${name}</td>
-             <td>${host}</td>
-             <td>${ping}</td>
-             <td>${num_players}</td>
-             <td>${type}</td>
-             <td>${map}</td>
-             <td>${players}</td>
-           </tr>
-         </script>
-       </tbody>
-     </table>
-     </section>
-   </body>
- </html>
+        <table id="servers" class="table-striped zebra-striped">
+          <thead>
+            <tr>
+              <th>サーバー名</th>
+              <th>ホスト</th>
+              <th>Ping</th>
+              <th>人数</th>
+              <th>タイプ</th>
+              <th>マップ</th>
+              <th>プレイヤー</th>
+            </tr>
+          </thead>
+          <tbody>
+            <script id="myTemplate" type="text/x-jquery-tmpl">
+              <tr>
+                <td>${name}</td>
+                <td>${host}</td>
+                <td>${ping}</td>
+                <td>${num_players}</td>
+                <td>${type}</td>
+                <td>${map}</td>
+                <td>${players}</td>
+              </tr>
+            </script>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>

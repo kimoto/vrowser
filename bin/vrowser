@@ -50,6 +50,9 @@ hoge
         opt :config_file, "config file path", :short => "-f", :type => String, :required => true
       when "server", "daemon"
         opt :config_file, "config file path", :short => "-f", :type => String, :required => true
+        opt :log_path, "log file path", :short => "-l", :type => String
+      when "httpd"
+        opt :config_file, "config file path", :short => "-f", :type => String, :required => true
         opt :port, "port number", :short => "-p", :type => String, :default => '3000'
         opt :host, "host or ip address", :short => "-h", :type => String, :default => 'localhost'
         opt :log_path, "log file path", :short => "-l", :default => STDERR
@@ -120,8 +123,24 @@ hoge
     execute_as_server(options.merge({:daemonize => true}))
   end
 
+  def command_httpd_daemon(options)
+    execute_as_httpd_server(options.merge({:daemonize => true}))
+  end
+
   private 
   def execute_as_server(options)
+    Vrowser.logger = Logger.new(options[:log_path]) if options[:log_path]
+    Vrowser::Daemon.new(:config_path => Pathname.new(options[:config_file]).realpath) do |vrowser|
+      if options[:daemonize]
+        vrowser.daemonize!
+        vrowser.start
+      else
+        vrowser.start
+      end
+    end
+  end
+
+  def execute_as_httpd_server(options)
     Vrowser::HTTPDaemon.new(
       :config_path  => Pathname.new(options[:config_file]).realpath,
       :BindAddress  => options[:host],

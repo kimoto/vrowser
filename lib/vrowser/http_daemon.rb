@@ -3,6 +3,55 @@
 require 'vrowser'
 require 'webrick'
 
+class Vrowser::Daemon
+  def self.start(options={})
+    self.new(options) do |instance|
+      instance.start
+    end
+  end
+
+  public
+  def initialize(options={})
+    @config_path = options[:config_path] or raise ArgumentError("config_path")
+    yield(self) if block_given?
+    self
+  end
+
+  def start
+    fetch_and_update @config_path
+    regist_stop
+  end
+
+  def daemonize!
+    Process.daemon
+  end
+
+  def stop
+  end
+
+  private
+  def regist_stop
+    trap("INT") do
+      stop
+    end
+  end
+
+  def fetch_and_update(config_path)
+    Vrowser.load_file(config_path) do |vrowser|
+      while true
+        puts "update server list"
+        vrowser.fetch
+
+        (60 / 5).times do
+          puts "try update"
+          vrowser.update
+          sleep (30 * 5)
+        end
+      end
+    end
+  end
+end
+
 class Vrowser::HTTPDaemon
   def self.start(options={})
     self.new(options) do |instance|
@@ -61,7 +110,7 @@ class Vrowser::HTTPDaemon
         (60 / 5).times do
           puts "try update"
           vrowser.update
-          sleep (60 * 5)
+          sleep (30 * 5)
         end
       end
     end
